@@ -24,11 +24,12 @@ class _MyAppState extends State<MyApp> {
   
   Settings settings = Settings();
   List<Meal> _avalibeMeals = dummyMeals;
+  List<Meal> _favoriteMeals = [];
 
   void _filterMeals(Settings settings) {
     setState(() {
       this.settings = settings;
-      
+
       _avalibeMeals = dummyMeals.where((meal){
         final filterGluten = settings.isGlutenFree && !meal.isGlutenFree;
         final filterLactose = settings.isLactoseFree && !meal.isLactoseFree;
@@ -37,6 +38,18 @@ class _MyAppState extends State<MyApp> {
         return !filterGluten && !filterLactose && !filterVegan && !filterVegetarian;
       }).toList();
     });
+  }
+
+  void _toggleFavorite(Meal meal) {
+    setState(() {
+      _favoriteMeals.contains(meal)
+          ? _favoriteMeals.remove(meal)
+          : _favoriteMeals.add(meal);
+    });
+  }
+
+  bool _isFavorite(Meal meal) {
+    return _favoriteMeals.contains(meal);
   }
 
   @override
@@ -70,9 +83,9 @@ class _MyAppState extends State<MyApp> {
             ),
       ),
       routes: {
-        AppRoutes.home: (ctx) => TabsScreen(),
+        AppRoutes.home: (ctx) => TabsScreen(_favoriteMeals),
         AppRoutes.categories_meals: (ctx) => CategoriesMealsScreen(_avalibeMeals),
-        AppRoutes.meal_detail: (ctx) => MealDetailScreen(),
+        AppRoutes.meal_detail: (ctx) => MealDetailScreen(_toggleFavorite, _isFavorite),
         AppRoutes.settings: (ctx) => SettingsScreen(settings, _filterMeals),
       },
       onUnknownRoute: (settings) {
