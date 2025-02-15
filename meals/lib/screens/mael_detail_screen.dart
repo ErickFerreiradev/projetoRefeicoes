@@ -89,7 +89,15 @@ class MealDetailScreen extends StatelessWidget {
             ),
           ],
         ),
-      )
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.pink,
+        child: Icon(Icons.favorite),
+        onPressed: () {
+          Navigator.of(context).pop(meal.title);
+        },
+
+        ),
     );
   }
 }

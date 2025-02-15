@@ -1,16 +1,44 @@
 import 'package:flutter/material.dart';
-import 'package:meals/screens/settings.dart';
+import 'package:meals/models/settings.dart';
+import 'package:meals/screens/settings_screen.dart';
 import 'screens/categories_screen.dart';
 import 'screens/categories_meals_screen.dart';
-import 'utils/app_routes.dart';
 import 'screens/mael_detail_screen.dart';
 import 'screens/tabs_screen.dart';
+
+import 'utils/app_routes.dart';
+
+import 'models/meal.dart';
+import 'data/dummy_data.dart';
  
 void main() => runApp(MyApp());
  
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   
+  Settings settings = Settings();
+  List<Meal> _avalibeMeals = dummyMeals;
+
+  void _filterMeals(Settings settings) {
+    setState(() {
+      this.settings = settings;
+      
+      _avalibeMeals = dummyMeals.where((meal){
+        final filterGluten = settings.isGlutenFree && !meal.isGlutenFree;
+        final filterLactose = settings.isLactoseFree && !meal.isLactoseFree;
+        final filterVegan = settings.isVegan && !meal.isVegan;
+        final filterVegetarian = settings.isVegetarian && !meal.isVegetarian;
+        return !filterGluten && !filterLactose && !filterVegan && !filterVegetarian;
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -43,9 +71,9 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         AppRoutes.home: (ctx) => TabsScreen(),
-        AppRoutes.categories_meals: (ctx) => CategoriesMealsScreen(),
+        AppRoutes.categories_meals: (ctx) => CategoriesMealsScreen(_avalibeMeals),
         AppRoutes.meal_detail: (ctx) => MealDetailScreen(),
-        AppRoutes.settings: (ctx) => SettingsScreen(),
+        AppRoutes.settings: (ctx) => SettingsScreen(settings, _filterMeals),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(
